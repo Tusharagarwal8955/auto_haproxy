@@ -1,0 +1,34 @@
+- hosts: webserver
+  tasks:
+  - package:
+      name: 
+        - "httpd"
+        - "php"
+  - copy:
+     dest: "/var/www/html/index.php"
+     src: "index.php"
+  - service:
+     name: "httpd"
+     state: started
+  - service:
+     name: firewalld
+     state: stopped
+- hosts: 127.0.0.1
+  tasks:
+  - package:
+     name: "haproxy"
+  - template:
+     src: "haproxy.cfg"
+     dest: "/etc/haproxy/haproxy.cfg"
+    notify: restart
+  - service:
+     name: haproxy
+     state: started
+  - service:
+     name: firewalld
+     state: stopped
+  handlers:
+    - name: restart
+      service:
+       name: haproxy
+       state: restarted
